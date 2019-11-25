@@ -1,0 +1,22 @@
+# układ logiczny z ostatniego zadania domowego
+
+a b c
+f and of
+pos nand: +a -b +c
+pos or: -a -b +c
+pos and: +a -c
+pos or: +a -b +c
+fo
+done
+
+# f(x,y,z)=¬(z)
+
+print
+zażółć gęślą jaźń
+done
+
+x y z
+f not of
+pos jus: +z
+fo
+done
