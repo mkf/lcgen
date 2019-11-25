@@ -15,26 +15,33 @@ my %argnums = qw(
 my @st;
 my @nest;
 
+my $isprint = 0;
+
 while (<STDIN>) {
     chomp;
     next if /^\s*$/ || /^#\s/;
-    s/^\s*//; s/\s*$//;
+    unless ($isprint) {
+        s/^\s*//; s/\s*$//;
+    }
     my @words = split(/\s/);
     if ($#nest == -1) {
         my @sta = ( \@words );
         push @st, \@sta;
         push @nest, \@sta;
+        $isprint = ($words[0] eq "print");
     } elsif ($#nest == 0) {
         if ($words[0] eq "done") {
             pop @nest; 
             die "Oh no 1" unless $#words == 0;
+            $isprint = 0;
             next;
         }
         my $elem = (\@nest)->[0];
-        if ($elem->[0]->[0] eq "print") {
+        if ($isprint or $elem->[0]->[0] eq "print") {
             push @$elem, $_;
             next;
         }
+        $isprint = 0;
         die "Oh no 2" unless $#words == 2 and $words[2] eq "of";
         my $function = $words[0];
         my $result = $words[1];
