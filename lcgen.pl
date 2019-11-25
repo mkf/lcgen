@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 use v5.26;
+use feature qw(postderef);
+no warnings qw(experimental::postderef);
 
 use Data::Dumper;
 
@@ -69,6 +71,39 @@ foreach my $paramtree (@st) {
     }
     say (join "  ", @$params);
     say (join "  ", (("|") x (scalar @$params)));
+    my %paramsindices;
+    @paramsindices{@$params} = 0..$#$params;
+    my @secondcolumn;
+    my @firstcolumn;
+    my @paramreferences = (0) x $#$params;
+    foreach (@$paramtree) {
+        my $fname = $_->[0];
+        my @farr = ( $fname, $_->[1], $#$_-1, 0 );
+        push @secondcolumn, \@farr;
+        foreach ($_->@[2..$#$_]) {
+            my @firstcolumnentry = ($fname, $_->[0], $_->[1]);
+            $farr[3]++;
+            foreach ($_->@[2..$#$_]) {
+                my ($sign, $word) = /\A([+-])(.*)\Z/;
+                my $paramidx = $paramsindices{$word};
+                my $paramsign;
+                if ($sign eq '-') {
+                    $paramsign = -1;
+                } elsif ($sign eq '+') {
+                    $paramsign = 1;
+                } else {
+                    die "oof";
+                }
+                push @firstcolumnentry, $paramsign * $paramidx;
+                $paramreferences[$paramidx]++;
+            }
+            push @firstcolumn, \@firstcolumnentry;
+        }
+    }
+    
     say Dumper($paramtree);
+    say Dumper(\@secondcolumn);
+    say Dumper(\@firstcolumn);
+    say Dumper(\@paramreferences);
     print "\n\n";
 }
